@@ -10,7 +10,8 @@ AddDefaultCharset UTF-8
   Require all denied
 </FilesMatch>
 
-# Directory Index
+# Directory Index & Options
+Options -Indexes
 DirectoryIndex index.html index-zh.html
 
 # MIME Types
