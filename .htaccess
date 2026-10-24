@@ -1,6 +1,15 @@
 # Character Encoding
 AddDefaultCharset UTF-8
 
+# Block access to hidden files and directories (including .git)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule "(^|/)\.(?!well-known)" - [F]
+</IfModule>
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
 # Directory Index
 DirectoryIndex index.html index-zh.html
 
