@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-top:0.5rem; padding-top:0.75rem; border-top:1px solid #e2e8f0;">
             ${pdf ? `
-              <a href="${pdf}" target="_blank" download class="btn-primary" style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.8125rem; background:#059669; border-color:#059669;">
+              <a href="${pdf}" target="_blank" rel="noopener noreferrer" download class="btn-primary" style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.8125rem; background:#059669; border-color:#059669;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 ${isZh ? '下载官方规格说明书 (PDF)' : 'Download Official Datasheet (PDF)'}
               </a>
