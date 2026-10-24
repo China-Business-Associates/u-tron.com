@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="100%" height="100%">
+  <defs>
+    <linearGradient id="cbaRedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C8102E" />
+      <stop offset="100%" stop-color="#8B0000" />
+    </linearGradient>
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E5C158" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <filter id="subtleDrop" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- Emblem Shield / Hexagon -->
+  <g transform="translate(15, 10)">
+    <!-- Base Shield -->
+    <path d="M 45 5 L 85 24 L 85 68 C 85 92 45 106 45 106 C 45 106 5 92 5 68 L 5 24 Z" 
+          fill="url(#cbaRedGrad)" filter="url(#subtleDrop)" />
+    
+    <!-- Inner Border -->
+    <path d="M 45 11 L 79 27 L 79 66 C 79 86 45 98 45 98 C 45 98 11 86 11 66 L 11 27 Z" 
+          fill="none" stroke="#FFFFFF" stroke-width="2" stroke-opacity="0.9" />
+
+    <!-- Stylized Bridge / Connection Wings -->
+    <path d="M 22 55 Q 45 35 68 55 Q 45 45 22 55 Z" fill="#FFFFFF" />
+    <path d="M 26 63 Q 45 47 64 63 Q 45 55 26 63 Z" fill="url(#goldAccent)" />
+    
+    <!-- 5 Stars arc (Bilateral Harmony) -->
+    <circle cx="45" cy="26" r="3.5" fill="#FFFFFF" />
+    <circle cx="33" cy="30" r="2.8" fill="#FFFFFF" />
+    <circle cx="57" cy="30" r="2.8" fill="#FFFFFF" />
+    <circle cx="23" cy="38" r="2.2" fill="#FFFFFF" />
+    <circle cx="67" cy="38" r="2.2" fill="#FFFFFF" />
+
+    <!-- Center Monogram CBA -->
+    <text x="45" y="84" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" 
+          font-size="16" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">CBA</text>
+  </g>
+
+  <!-- Wordmark Section -->
+  <g transform="translate(125, 34)">
+    <!-- Main Acronym & Chinese Subtitle -->
+    <text x="0" y="0" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" 
+          font-size="24" font-weight="900" fill="#111827" letter-spacing="0.5">
+      CHINA BUSINESS ASSOCIATES
+    </text>
+    <text x="350" y="-1" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" 
+          font-size="13" font-weight="600" fill="#C8102E" letter-spacing="2">
+      美中商务
+    </text>
+
+    <!-- Subtitle / Division -->
+    <text x="0" y="24" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" 
+          font-size="13" font-weight="700" fill="#C8102E" letter-spacing="2.5">
+      AMERICA-CHINA.COM
+    </text>
+
+    <!-- Heritage Tag -->
+    <text x="0" y="44" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" 
+          font-size="10.5" font-weight="500" fill="#6B7280" letter-spacing="1">
+      PIONEERING U.S.–CHINA TRADE, INVESTMENT &amp; TECHNOLOGY SINCE 1980
+    </text>
+
+    <!-- Divider Bar -->
+    <rect x="0" y="52" width="375" height="2" fill="url(#cbaRedGrad)" rx="1" />
+  </g>
+</svg>
