@@ -226,6 +226,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   // 5. Contact Form Client-Side Validation & Simulated Submission
   const contactForm = document.getElementById('consultationForm');
   if (contactForm) {
@@ -242,13 +252,17 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
+      const safeName = escapeHtml(name);
+      const safeDept = escapeHtml(dept);
+      const safeEmail = escapeHtml(email);
+
       // Simulated success confirmation modal
       const confContent = isZh ? `
         <div style="text-align:center; padding:1.5rem 0;">
           <div style="width:60px; height:60px; border-radius:50%; background:#dcfce7; color:#16a34a; font-size:2rem; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem;">✓</div>
           <h3 style="font-size:1.35rem; color:#0a193b; font-weight:800; margin-bottom:0.5rem;">技术咨询需求已成功提交</h3>
           <p style="color:#475569; font-size:0.9rem; line-height:1.6; max-width:440px; margin:0 auto 1.5rem;">
-            感谢您，<strong>${name}</strong>！您关于 <strong>${dept}</strong> 的工程咨询需求已成功转接至工程技术团队。我们将尽快审核您的项目规格并发送回复至 <strong>${email}</strong>。
+            感谢您，<strong>${safeName}</strong>！您关于 <strong>${safeDept}</strong> 的工程咨询需求已成功转接至工程技术团队。我们将尽快审核您的项目规格并发送回复至 <strong>${safeEmail}</strong>。
           </p>
           <button onclick="document.getElementById('modalBackdrop').classList.remove('open'); document.body.style.overflow='';" class="btn-primary" style="margin:0 auto;">确认并关闭</button>
         </div>
@@ -257,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <div style="width:60px; height:60px; border-radius:50%; background:#dcfce7; color:#16a34a; font-size:2rem; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem;">✓</div>
           <h3 style="font-size:1.35rem; color:#0a193b; font-weight:800; margin-bottom:0.5rem;">Inquiry Successfully Transmitted</h3>
           <p style="color:#475569; font-size:0.9rem; line-height:1.6; max-width:440px; margin:0 auto 1.5rem;">
-            Thank you, <strong>${name}</strong>. Your consultation request for the <strong>${dept}</strong> department has been logged. Our engineering liaison will review your specifications and reply to <strong>${email}</strong> within one business day.
+            Thank you, <strong>${safeName}</strong>. Your consultation request for the <strong>${safeDept}</strong> department has been logged. Our engineering liaison will review your specifications and reply to <strong>${safeEmail}</strong> within one business day.
           </p>
           <button onclick="document.getElementById('modalBackdrop').classList.remove('open'); document.body.style.overflow='';" class="btn-primary" style="margin:0 auto;">Close Confirmation</button>
         </div>
