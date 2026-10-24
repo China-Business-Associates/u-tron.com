@@ -1,0 +1,52 @@
+name: Verify & Deploy u-tron.com
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    name: Lint & Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check JS syntax
+        run: |
+          for f in js/*.js; do
+            [ -f "$f" ] && node --check "$f"
+          done
+
+      - name: Validate HTML syntax
+        run: npx --yes htmlhint "**/*.html"
+
+      - name: Check internal links & asset paths
+        run: npx --yes linkinator index.html --recurse
+
+  deploy:
+    name: Publish to VPS
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via rsync over SSH
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-avz --delete"
+          SOURCE: "/"
+          REMOTE_HOST: ${{ secrets.SSH_HOST || 'u-tron.com' }}
+          REMOTE_USER: ${{ secrets.SSH_USER || 'cba_admin1' }}
+          TARGET: "/home/cba_admin1/u-tron.com/"
+          EXCLUDE: "/.git*, /.github*"
