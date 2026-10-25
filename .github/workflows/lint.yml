@@ -1,0 +1,38 @@
+name: Lint & Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint & Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check JS Syntax
+        run: |
+          for f in public/js/*.js; do
+            [ -f "$f" ] && node --check "$f"
+          done
+
+      - name: Lint Worker Code
+        run: npx -y eslint src/
+
+      - name: Validate HTML Syntax
+        run: npx --yes htmlhint "public/**/*.html"
+
+      - name: Check Internal Links & Asset Paths
+        run: cd public && npx --yes linkinator index.html --recurse --url-rewrite-search "^https://u-tron\.com/" --url-rewrite-replace "/" --retry-errors --retry-errors-count 3
+
+      - name: Validate Wrangler Config & Assets
+        run: npx -y wrangler deploy --dry-run

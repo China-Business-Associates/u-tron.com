@@ -1,37 +1,83 @@
-# u-tron.com Static Site
+# U-Tron &mdash; Cloudflare Worker Deployment
 
-## CI/CD Deployment Process
+Deployment guide for `u-tron.com` using Cloudflare Workers with Static Assets and Cloudflare D1.
 
-Deployments run automatically via GitHub Actions workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
+---
 
-### Workflow Stages
+## Architecture Overview
+* **Type:** Cloudflare Worker with Static Assets
+* **Entrypoint:** `src/index.js`
+* **Static Assets:** `public/` (contains `index.html`, `index-zh.html`, `admin/`, CSS, images, JS, downloads)
+* **Database:** Cloudflare D1 (`u-tron` / ID: `b39c1bd2-934f-412f-a839-6069df3787f1`)
+* **Config:** `wrangler.jsonc`
 
-1. **Trigger (Push)**:
-   - Triggers on push or pull request to `main`.
+---
 
-2. **Lint & Quality Verification (`verify` job)**:
-   - **JS Syntax**: `node --check js/*.js`
-   - **HTML Validation**: `npx htmlhint "**/*.html"`
-   - **Link & Asset Audit**: `npx linkinator index.html --recurse --url-rewrite-search "^https://u-tron\.com/" --url-rewrite-replace "/" --retry-errors --retry-errors-count 3`
+## Project Structure
 
-3. **Deploy to Production (`deploy` job)**:
-   - Executes only on `push` to `main` after `verify` succeeds.
-   - Syncs static assets via `rsync` over SSH to `/home/cba_admin1/u-tron.com/`.
-   - Automatically excludes `.git*` and `.github*`.
-   - Required repository secret: `SSH_PRIVATE_KEY` (optional: `SSH_HOST`, `SSH_USER`).
-
-### Local Verification
-
-Run checks locally before pushing:
-
-```bash
-node --check js/*.js
-npx htmlhint "**/*.html"
-npx linkinator index.html --config linkinator.config.json --recurse
+```
+u-tron/
+├── wrangler.jsonc       # Worker config: assets directory + D1 binding
+├── src/
+│   └── index.js         # API router (/api/contact, /api/leads, static fallback)
+├── public/              # Static site assets
+│   ├── index.html       # Homepage with contact form (English)
+│   ├── index-zh.html    # Homepage with contact form (Chinese)
+│   ├── admin/           # Admin leads dashboard
+│   ├── css/
+│   ├── js/
+│   ├── images/
+│   └── downloads/
+├── schema.sql           # inquiries table schema (reference)
+└── README.md
 ```
 
-### Manual Deployment Fallback
+---
+
+## Deployment via Wrangler CLI
+
+Deploy directly to Cloudflare:
 
 ```bash
-rsync -avz --delete --exclude='.git*' --exclude='.github*' ./ cba_admin1@u-tron.com:/home/cba_admin1/u-tron.com/
+# 1. Authenticate with Cloudflare (first time only)
+npx wrangler login
+
+# 2. Deploy Worker and Static Assets to Production
+npx wrangler deploy
 ```
+
+This single command:
+1. Uploads all static files from `public/`.
+2. Compiles and deploys `src/index.js` handling `POST /api/contact` and `GET /api/leads`.
+3. Attaches the `DB` binding to the `u-tron` D1 database.
+
+---
+
+## Environment Variables (Admin Password)
+
+To set the password for the `/admin/` dashboard:
+
+```bash
+# Set encrypted secret in production
+npx wrangler secret put ADMIN_PASSWORD
+```
+Or configure in Cloudflare Dashboard: **Workers & Pages** > `u-tron` > **Settings** > **Variables and Secrets**.
+
+---
+
+## Custom Domain
+
+Attached domains:
+* `u-tron.com`
+* `www.u-tron.com`
+
+---
+
+## CI / Quality Checks
+
+Automated checks run via [.github/workflows/lint.yml](.github/workflows/lint.yml):
+* **Worker Linting**: `npx eslint src/`
+* **JS Syntax**: `node --check public/js/*.js`
+* **HTML Syntax**: `npx htmlhint "public/**/*.html"`
+* **Link Audit**: `cd public && npx linkinator index.html --recurse`
+* **Wrangler Validation**: `npx wrangler deploy --dry-run`
