@@ -7,7 +7,8 @@ export default [
       globals: {
         URL: "readonly",
         Response: "readonly",
-        FormData: "readonly"
+        FormData: "readonly",
+        Headers: "readonly"
       }
     },
     rules: {

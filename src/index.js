@@ -1,3 +1,17 @@
+const SECURITY_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "SAMEORIGIN",
+  "Referrer-Policy": "strict-origin-when-cross-origin"
+};
+
+function jsonResponse(data, init = {}) {
+  const headers = new Headers(init.headers || {});
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
+    headers.set(k, v);
+  }
+  return Response.json(data, Object.assign({}, init, { headers }));
+}
+
 function timingSafeEqual(a, b) {
   if (typeof a !== "string" || typeof b !== "string") {
     return false;
@@ -35,7 +49,7 @@ export default {
           try {
             body = JSON.parse(text);
           } catch {
-            return Response.json(
+            return jsonResponse(
               { ok: false, error: "Unsupported content type." },
               { status: 415 }
             );
@@ -43,7 +57,7 @@ export default {
         }
 
         if (!body || typeof body !== "object") {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Invalid request body." },
             { status: 400 }
           );
@@ -51,7 +65,7 @@ export default {
 
         // Honeypot spam filter
         if (body.fax) {
-          return Response.json({ ok: true, success: true });
+          return jsonResponse({ ok: true, success: true });
         }
 
         const name = (body.name || body.formName || body.inputName || "").trim() || null;
@@ -74,45 +88,45 @@ export default {
         // Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email || email.length > 254 || !emailRegex.test(email)) {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Valid email address is required." },
             { status: 400 }
           );
         }
 
         if (name && name.length > 100) {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Name must be 100 characters or fewer." },
             { status: 400 }
           );
         }
         if (company && company.length > 100) {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Company must be 100 characters or fewer." },
             { status: 400 }
           );
         }
         if (phone && phone.length > 50) {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Phone must be 50 characters or fewer." },
             { status: 400 }
           );
         }
         if (inquiry_type && inquiry_type.length > 100) {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Inquiry type must be 100 characters or fewer." },
             { status: 400 }
           );
         }
         if (comment && comment.length > 5000) {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Comment must be 5000 characters or fewer." },
             { status: 400 }
           );
         }
 
         if (!env.DB) {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Database binding 'DB' not configured." },
             { status: 500 }
           );
@@ -124,9 +138,9 @@ export default {
           .bind(name, company, phone, email, inquiry_type, comment)
           .run();
 
-        return Response.json({ ok: true, success: true });
+        return jsonResponse({ ok: true, success: true });
       } catch (err) {
-        return Response.json(
+        return jsonResponse(
           { ok: false, error: err.message || "Something went wrong." },
           { status: 500 }
         );
@@ -143,21 +157,21 @@ export default {
           (authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "");
 
         if (!env.ADMIN_PASSWORD) {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Admin authentication not configured." },
             { status: 500 }
           );
         }
 
         if (!provided || !timingSafeEqual(provided, env.ADMIN_PASSWORD)) {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Unauthorized" },
             { status: 401 }
           );
         }
 
         if (!env.DB) {
-          return Response.json(
+          return jsonResponse(
             { ok: false, error: "Database binding 'DB' not configured." },
             { status: 500 }
           );
@@ -167,21 +181,30 @@ export default {
           "SELECT id, name, company, phone, email, inquiry_type, comment, created_at FROM inquiries ORDER BY id DESC LIMIT 500"
         ).all();
 
-        return Response.json(
+        return jsonResponse(
           { ok: true, success: true, leads: results || [] },
           {
             headers: { "Cache-Control": "no-store" }
           }
         );
       } catch (err) {
-        return Response.json(
+        return jsonResponse(
           { ok: false, error: err.message || "Failed to fetch leads." },
           { status: 500 }
         );
       }
     }
 
-    // 3. Fallback to static assets
-    return env.ASSETS.fetch(request);
+    // 3. Fallback to static assets with security headers
+    const assetResponse = await env.ASSETS.fetch(request);
+    const headers = new Headers(assetResponse.headers);
+    for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
+      headers.set(k, v);
+    }
+    return new Response(assetResponse.body, {
+      status: assetResponse.status,
+      statusText: assetResponse.statusText,
+      headers
+    });
   }
 };
