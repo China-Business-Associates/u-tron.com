@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /.git
+Disallow: /.github
+
+Sitemap: https://u-tron.com/sitemap.xml
