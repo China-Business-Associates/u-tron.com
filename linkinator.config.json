@@ -1,0 +1,6 @@
+{
+  "urlRewriteSearch": "^https://u-tron\\.com/",
+  "urlRewriteReplace": "/",
+  "retryErrors": true,
+  "retryErrorsCount": 3
+}

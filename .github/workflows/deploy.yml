@@ -29,7 +29,7 @@ jobs:
         run: npx --yes htmlhint "**/*.html"
 
       - name: Check internal links & asset paths
-        run: npx --yes linkinator index.html --recurse
+        run: npx --yes linkinator index.html --recurse --url-rewrite-search "^https://u-tron\.com/" --url-rewrite-replace "/" --retry-errors --retry-errors-count 3
 
   deploy:
     name: Publish to VPS
