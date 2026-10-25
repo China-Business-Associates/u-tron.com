@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Inquiries &amp; Leads | U-Tron</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="shortcut icon" href="../favicon.ico">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #f4f6f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #333;
+      padding-bottom: 50px;
+      line-height: 1.5;
+    }
+    .navbar {
+      background-color: #0a193b;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .navbar-brand {
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.5px;
+    }
+    .nav-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 25px;
+      padding: 24px;
+    }
+    .login-container {
+      max-width: 420px;
+      margin: 80px auto;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #475569;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .form-control:focus {
+      border-color: #0345BF;
+      box-shadow: 0 0 0 3px rgba(3, 69, 191, 0.15);
+    }
+    .btn {
+      display: inline-block;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 9px 16px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+    .btn-brand {
+      background-color: #0345BF;
+      color: #fff;
+    }
+    .btn-brand:hover, .btn-brand:focus {
+      background-color: #022c7a;
+      color: #fff;
+    }
+    .btn-default {
+      background-color: #f8fafc;
+      border-color: #cbd5e1;
+      color: #334155;
+    }
+    .btn-default:hover {
+      background-color: #e2e8f0;
+    }
+    .btn-danger {
+      background-color: #dc2626;
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background-color: #b91c1c;
+    }
+    .btn-block {
+      display: block;
+      width: 100%;
+    }
+    .btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+    .alert {
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .alert-danger {
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+    }
+    .controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+    .search-box {
+      flex: 1;
+      max-width: 480px;
+    }
+    .count-box {
+      font-size: 14px;
+      color: #475569;
+    }
+    .table-container {
+      overflow-x: auto;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    .table th {
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 12px 14px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #475569;
+      white-space: nowrap;
+    }
+    .table td {
+      padding: 12px 14px;
+      font-size: 13px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+    .table tbody tr:hover {
+      background-color: #f8fafc;
+    }
+    .badge-inquiry {
+      background-color: #eff6ff;
+      color: #0345BF;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .comment-cell {
+      max-width: 280px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <nav class="navbar">
+    <span class="navbar-brand">U-Tron &mdash; Leads Admin</span>
+    <div class="nav-actions hidden" id="navActions">
+      <button class="btn btn-default btn-sm" onclick="fetchLeads()">Refresh</button>
+      <button class="btn btn-default btn-sm" onclick="exportCSV()">Export CSV</button>
+      <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Login View -->
+    <div id="loginView" class="login-container">
+      <div class="card">
+        <h4 style="margin-top:0; margin-bottom: 20px; font-weight: 700; color: #0a193b;">Admin Access</h4>
+        <div id="loginAlert" class="alert alert-danger hidden"></div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" class="form-control" placeholder="Enter ADMIN_PASSWORD" required autofocus>
+          </div>
+          <button type="submit" class="btn btn-brand btn-block" id="loginBtn">Unlock Leads</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Leads Dashboard View -->
+    <div id="dashboardView" class="hidden">
+      <div class="controls-row">
+        <div class="search-box">
+          <input type="text" id="searchInput" class="form-control" placeholder="Search by name, organization, email, phone, department..." oninput="filterLeads()">
+        </div>
+        <div class="count-box">
+          <strong id="leadCount">0</strong> inquiries recorded
+        </div>
+      </div>
+
+      <div class="card" style="padding: 0;">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Organization</th>
+                <th>Contact No.</th>
+                <th>Email</th>
+                <th>Department / Type</th>
+                <th>Comments / Specifications</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTableBody">
+              <tr>
+                <td colspan="8" style="text-align:center; padding: 30px; color: #777;">Loading inquiries...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    var allLeads = [];
+
+    function getSavedPassword() {
+      return sessionStorage.getItem('utron_admin_pwd') || '';
+    }
+
+    function setSavedPassword(pwd) {
+      sessionStorage.setItem('utron_admin_pwd', pwd);
+    }
+
+    function logout() {
+      sessionStorage.removeItem('utron_admin_pwd');
+      document.getElementById('loginView').classList.remove('hidden');
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById('navActions').classList.add('hidden');
+      document.getElementById('adminPassword').value = '';
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      var pwd = document.getElementById('adminPassword').value.trim();
+      if (!pwd) return;
+
+      var loginBtn = document.getElementById('loginBtn');
+      var alertBox = document.getElementById('loginAlert');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Verifying...';
+      alertBox.classList.add('hidden');
+
+      setSavedPassword(pwd);
+      var ok = await fetchLeads();
+      if (!ok) {
+        sessionStorage.removeItem('utron_admin_pwd');
+        alertBox.textContent = 'Invalid password or server configuration error.';
+        alertBox.classList.remove('hidden');
+      }
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Unlock Leads';
+    }
+
+    async function fetchLeads() {
+      var pwd = getSavedPassword();
+      if (!pwd) {
+        logout();
+        return false;
+      }
+
+      try {
+        var res = await fetch('/api/leads', {
+          headers: {
+            'x-admin-password': pwd
+          }
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            logout();
+            var alertBox = document.getElementById('loginAlert');
+            alertBox.textContent = 'Invalid password.';
+            alertBox.classList.remove('hidden');
+          }
+          return false;
+        }
+
+        var data = await res.json();
+        allLeads = data.leads || [];
+
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('dashboardView').classList.remove('hidden');
+        document.getElementById('navActions').classList.remove('hidden');
+
+        renderTable(allLeads);
+        return true;
+      } catch (err) {
+        alert('Error connecting to leads API: ' + err.message);
+        return false;
+      }
+    }
+
+    function renderTable(leads) {
+      var tbody = document.getElementById('leadsTableBody');
+      document.getElementById('leadCount').textContent = leads.length;
+
+      if (!leads.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 40px; color: #888;">No inquiries found.</td></tr>';
+        return;
+      }
+
+      var html = '';
+      for (var i = 0; i < leads.length; i++) {
+        var item = leads[i];
+        var dateStr = item.created_at ? new Date(item.created_at.replace(' ', 'T') + 'Z').toLocaleString() : '-';
+        html += '<tr>' +
+          '<td>' + (item.id || (i + 1)) + '</td>' +
+          '<td style="white-space:nowrap; font-size:12px; color:#666;">' + escapeHtml(dateStr) + '</td>' +
+          '<td><strong>' + escapeHtml(item.name || '-') + '</strong></td>' +
+          '<td>' + escapeHtml(item.company || '-') + '</td>' +
+          '<td><a href="tel:' + escapeHtml(item.phone || '') + '">' + escapeHtml(item.phone || '-') + '</a></td>' +
+          '<td><a href="mailto:' + escapeHtml(item.email || '') + '">' + escapeHtml(item.email || '-') + '</a></td>' +
+          '<td><span class="badge-inquiry">' + escapeHtml(item.inquiry_type || 'General') + '</span></td>' +
+          '<td class="comment-cell">' + escapeHtml(item.comment || '-') + '</td>' +
+        '</tr>';
+      }
+      tbody.innerHTML = html;
+    }
+
+    function filterLeads() {
+      var term = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      if (!term) {
+        renderTable(allLeads);
+        return;
+      }
+
+      var filtered = allLeads.filter(function(item) {
+        return (item.name && item.name.toLowerCase().indexOf(term) > -1) ||
+               (item.company && item.company.toLowerCase().indexOf(term) > -1) ||
+               (item.email && item.email.toLowerCase().indexOf(term) > -1) ||
+               (item.phone && item.phone.toLowerCase().indexOf(term) > -1) ||
+               (item.inquiry_type && item.inquiry_type.toLowerCase().indexOf(term) > -1) ||
+               (item.comment && item.comment.toLowerCase().indexOf(term) > -1);
+      });
+      renderTable(filtered);
+    }
+
+    function exportCSV() {
+      if (!allLeads.length) {
+        alert('No leads to export.');
+        return;
+      }
+
+      var headers = ['ID', 'Date', 'Name', 'Organization', 'Phone', 'Email', 'Inquiry Type', 'Comment'];
+      var rows = [headers];
+
+      for (var i = 0; i < allLeads.length; i++) {
+        var l = allLeads[i];
+        rows.push([
+          l.id || '',
+          l.created_at || '',
+          '"' + (l.name || '').replace(/"/g, '""') + '"',
+          '"' + (l.company || '').replace(/"/g, '""') + '"',
+          '"' + (l.phone || '').replace(/"/g, '""') + '"',
+          '"' + (l.email || '').replace(/"/g, '""') + '"',
+          '"' + (l.inquiry_type || '').replace(/"/g, '""') + '"',
+          '"' + (l.comment || '').replace(/"/g, '""') + '"'
+        ]);
+      }
+
+      var csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + rows.map(function(e) { return e.join(','); }).join('\n');
+      var encodedUri = encodeURI(csvContent);
+      var link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', 'utron_leads_' + new Date().toISOString().slice(0, 10) + '.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // Auto-check on load
+    if (getSavedPassword()) {
+      fetchLeads();
+    }
+  </script>
+</body>
+</html>
