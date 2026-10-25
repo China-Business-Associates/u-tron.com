@@ -1925,25 +1925,26 @@
         <div class="contact-form-panel">
           <h3>Request Technical Specifications</h3>
           <form id="consultationForm">
+            <input type="text" name="fax" style="display:none;" tabindex="-1" autocomplete="off" aria-hidden="true">
             <div class="form-grid">
               <div class="form-group">
                 <label for="formName">Full Name *</label>
-                <input type="text" id="formName" required placeholder="e.g. Robert Zhang">
+                <input type="text" id="formName" name="name" required placeholder="e.g. Robert Zhang">
               </div>
 
               <div class="form-group">
                 <label for="formEmail">Work Email *</label>
-                <input type="email" id="formEmail" required placeholder="e.g. rzhang@infrastructure.gov">
+                <input type="email" id="formEmail" name="email" required placeholder="e.g. rzhang@infrastructure.gov">
               </div>
 
               <div class="form-group">
                 <label for="formOrg">Organization / Agency</label>
-                <input type="text" id="formOrg" placeholder="e.g. Municipal Highway Authority">
+                <input type="text" id="formOrg" name="company" placeholder="e.g. Municipal Highway Authority">
               </div>
 
               <div class="form-group">
                 <label for="formDept">Department / Practice Area</label>
-                <select id="formDept">
+                <select id="formDept" name="inquiry_type">
                   <option value="Municipal Street Lighting">Municipal &amp; Highway Lighting</option>
                   <option value="Intelligent Transportation Systems">Intelligent Transportation Systems (ITS)</option>
                   <option value="Solar & Off-Grid Solutions">Solar &amp; Off-Grid Microgrids</option>
@@ -1956,7 +1957,7 @@
 
               <div class="form-group full-width">
                 <label for="formMsg">Project Specifications / Inquiries *</label>
-                <textarea id="formMsg" rows="4" required placeholder="Specify pole height, luminaire wattage, operating voltage, project location, or specific product part numbers..."></textarea>
+                <textarea id="formMsg" name="comment" rows="4" required placeholder="Specify pole height, luminaire wattage, operating voltage, project location, or specific product part numbers..."></textarea>
               </div>
 
               <div class="form-group full-width">

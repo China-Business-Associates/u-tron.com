@@ -1925,25 +1925,26 @@
         <div class="contact-form-panel">
           <h3>索取工程技术参数与方案</h3>
           <form id="consultationForm">
+            <input type="text" name="fax" style="display:none;" tabindex="-1" autocomplete="off" aria-hidden="true">
             <div class="form-grid">
               <div class="form-group">
                 <label for="formName">姓名 *</label>
-                <input type="text" id="formName" required placeholder="如：张工 / 李经理">
+                <input type="text" id="formName" name="name" required placeholder="如：张工 / 李经理">
               </div>
 
               <div class="form-group">
                 <label for="formEmail">工作邮箱 *</label>
-                <input type="email" id="formEmail" required placeholder="如：project@highway-authority.gov.cn">
+                <input type="email" id="formEmail" name="email" required placeholder="如：project@highway-authority.gov.cn">
               </div>
 
               <div class="form-group">
                 <label for="formOrg">所属单位 / 机构名称</label>
-                <input type="text" id="formOrg" placeholder="如：市政交管部门 / 照明设计院 / 工程公司">
+                <input type="text" id="formOrg" name="company" placeholder="如：市政交管部门 / 照明设计院 / 工程公司">
               </div>
 
               <div class="form-group">
                 <label for="formDept">咨询业务领域</label>
-                <select id="formDept">
+                <select id="formDept" name="inquiry_type">
                   <option value="市政与高速道路照明">市政与高速公路大功率照明</option>
                   <option value="智能交通系统 (ITS)">智能交通系统集成 (ITS)</option>
                   <option value="太阳能及离网微电网">独立光伏与太阳能离网微电网</option>
@@ -1955,7 +1956,7 @@
 
               <div class="form-group full-width">
                 <label for="formMsg">项目工程参数 / 需求说明 *</label>
-                <textarea id="formMsg" rows="4" required placeholder="请注明道路等级、灯杆高度、所需功率/照度、工作电压要求、项目所在地或具体关注的产品型号..."></textarea>
+                <textarea id="formMsg" name="comment" rows="4" required placeholder="请注明道路等级、灯杆高度、所需功率/照度、工作电压要求、项目所在地或具体关注的产品型号..."></textarea>
               </div>
 
               <div class="form-group full-width">

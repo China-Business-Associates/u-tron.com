@@ -236,27 +236,35 @@ document.addEventListener('DOMContentLoaded', function () {
       .replace(/'/g, '&#039;');
   }
 
-  // 5. Contact Form Client-Side Validation & Simulated Submission
+  // 5. Contact Form Submission via Cloudflare Worker & D1
   const contactForm = document.getElementById('consultationForm');
   if (contactForm) {
-    contactForm.addEventListener('submit', function (e) {
+    contactForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       const name = document.getElementById('formName').value.trim();
       const email = document.getElementById('formEmail').value.trim();
       const org = document.getElementById('formOrg').value.trim();
       const dept = document.getElementById('formDept').value;
       const message = document.getElementById('formMsg').value.trim();
+      const faxInput = contactForm.querySelector('input[name="fax"]');
+      const fax = faxInput ? faxInput.value : '';
 
       if (!name || !email || !message) {
         alert(isZh ? '请填写所有必填字段。' : 'Please complete all required fields.');
         return;
       }
 
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      const origBtnText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = isZh ? '正在提交...' : 'Transmitting...';
+      }
+
       const safeName = escapeHtml(name);
       const safeDept = escapeHtml(dept);
       const safeEmail = escapeHtml(email);
 
-      // Simulated success confirmation modal
       const confContent = isZh ? `
         <div style="text-align:center; padding:1.5rem 0;">
           <div style="width:60px; height:60px; border-radius:50%; background:#dcfce7; color:#16a34a; font-size:2rem; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem;">✓</div>
@@ -276,8 +284,39 @@ document.addEventListener('DOMContentLoaded', function () {
           <button onclick="document.getElementById('modalBackdrop').classList.remove('open'); document.body.style.overflow='';" class="btn-primary" style="margin:0 auto;">Close Confirmation</button>
         </div>
       `;
-      contactForm.reset();
-      openModal(isZh ? '咨询申请已受理' : 'Consultation Request Logged', confContent);
+
+      try {
+        const payload = {
+          name: name,
+          email: email,
+          company: org,
+          inquiry_type: dept,
+          comment: message,
+          fax: fax
+        };
+
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json().catch(function () { return {}; });
+
+        if (!res.ok || (!result.ok && !result.success)) {
+          throw new Error(result.error || (isZh ? '提交失败，请重试。' : 'Submission failed.'));
+        }
+
+        contactForm.reset();
+        openModal(isZh ? '咨询申请已受理' : 'Consultation Request Logged', confContent);
+      } catch (err) {
+        alert((isZh ? '提交失败：' : 'Error submitting inquiry: ') + err.message);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = origBtnText;
+        }
+      }
     });
   }
 });
