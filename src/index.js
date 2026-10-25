@@ -1,3 +1,17 @@
+function timingSafeEqual(a, b) {
+  if (typeof a !== "string" || typeof b !== "string") {
+    return false;
+  }
+  let mismatch = a.length === b.length ? 0 : 1;
+  const len = Math.max(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    const charA = i < a.length ? a.charCodeAt(i) : 0;
+    const charB = i < b.length ? b.charCodeAt(i) : 0;
+    mismatch |= charA ^ charB;
+  }
+  return mismatch === 0;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -28,6 +42,13 @@ export default {
           }
         }
 
+        if (!body || typeof body !== "object") {
+          return Response.json(
+            { ok: false, error: "Invalid request body." },
+            { status: 400 }
+          );
+        }
+
         // Honeypot spam filter
         if (body.fax) {
           return Response.json({ ok: true, success: true });
@@ -50,10 +71,42 @@ export default {
         const comment =
           (body.comment || body.message || body.formMsg || body.projectSpecs || "").trim() || null;
 
-        // email is the only NOT NULL column
-        if (!email) {
+        // Validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || email.length > 254 || !emailRegex.test(email)) {
           return Response.json(
-            { ok: false, error: "Email is required." },
+            { ok: false, error: "Valid email address is required." },
+            { status: 400 }
+          );
+        }
+
+        if (name && name.length > 100) {
+          return Response.json(
+            { ok: false, error: "Name must be 100 characters or fewer." },
+            { status: 400 }
+          );
+        }
+        if (company && company.length > 100) {
+          return Response.json(
+            { ok: false, error: "Company must be 100 characters or fewer." },
+            { status: 400 }
+          );
+        }
+        if (phone && phone.length > 50) {
+          return Response.json(
+            { ok: false, error: "Phone must be 50 characters or fewer." },
+            { status: 400 }
+          );
+        }
+        if (inquiry_type && inquiry_type.length > 100) {
+          return Response.json(
+            { ok: false, error: "Inquiry type must be 100 characters or fewer." },
+            { status: 400 }
+          );
+        }
+        if (comment && comment.length > 5000) {
+          return Response.json(
+            { ok: false, error: "Comment must be 5000 characters or fewer." },
             { status: 400 }
           );
         }
@@ -89,7 +142,14 @@ export default {
           customHeader ||
           (authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "");
 
-        if (env.ADMIN_PASSWORD && provided !== env.ADMIN_PASSWORD) {
+        if (!env.ADMIN_PASSWORD) {
+          return Response.json(
+            { ok: false, error: "Admin authentication not configured." },
+            { status: 500 }
+          );
+        }
+
+        if (!provided || !timingSafeEqual(provided, env.ADMIN_PASSWORD)) {
           return Response.json(
             { ok: false, error: "Unauthorized" },
             { status: 401 }
