@@ -196,12 +196,16 @@ export default {
     }
 
     // 3. Fallback to static assets with security headers
+    if (!env.ASSETS) {
+      return new Response("Not Found", { status: 404 });
+    }
     const assetResponse = await env.ASSETS.fetch(request);
     const headers = new Headers(assetResponse.headers);
     for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
       headers.set(k, v);
     }
-    return new Response(assetResponse.body, {
+    const hasNoBody = [101, 204, 205, 304].includes(assetResponse.status);
+    return new Response(hasNoBody ? null : assetResponse.body, {
       status: assetResponse.status,
       statusText: assetResponse.statusText,
       headers
