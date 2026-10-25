@@ -12,5 +12,16 @@
       "database_name": "u-tron",
       "database_id": "b39c1bd2-934f-412f-a839-6069df3787f1"
     }
-  ]
+  ],
+  "routes": [
+    {
+      "pattern": "u-tron.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.u-tron.com",
+      "custom_domain": true
+    }
+  ],
+  "workers_dev": false
 }
