@@ -365,8 +365,8 @@
           '<td style="white-space:nowrap; font-size:12px; color:#666;">' + escapeHtml(dateStr) + '</td>' +
           '<td><strong>' + escapeHtml(item.name || '-') + '</strong></td>' +
           '<td>' + escapeHtml(item.company || '-') + '</td>' +
-          '<td><a href="tel:' + escapeHtml(item.phone || '') + '">' + escapeHtml(item.phone || '-') + '</a></td>' +
-          '<td><a href="mailto:' + escapeHtml(item.email || '') + '">' + escapeHtml(item.email || '-') + '</a></td>' +
+          '<td><a href="' + safePhoneUrl(item.phone) + '">' + escapeHtml(item.phone || '-') + '</a></td>' +
+          '<td><a href="' + safeMailtoUrl(item.email) + '">' + escapeHtml(item.email || '-') + '</a></td>' +
           '<td><span class="badge-inquiry">' + escapeHtml(item.inquiry_type || 'General') + '</span></td>' +
           '<td class="comment-cell">' + escapeHtml(item.comment || '-') + '</td>' +
         '</tr>';
@@ -392,6 +392,27 @@
       renderTable(filtered);
     }
 
+    function escapeCsvCell(val) {
+      if (val == null) return '""';
+      var str = String(val);
+      if (/^[=\+\-@\t\r]/.test(str)) {
+        str = "'" + str;
+      }
+      return '"' + str.replace(/"/g, '""') + '"';
+    }
+
+    function safePhoneUrl(phone) {
+      if (!phone) return '#';
+      var cleaned = String(phone).trim();
+      return /^[+0-9\s\-().]+$/.test(cleaned) ? 'tel:' + cleaned : '#';
+    }
+
+    function safeMailtoUrl(email) {
+      if (!email) return '#';
+      var cleaned = String(email).trim();
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleaned) ? 'mailto:' + cleaned : '#';
+    }
+
     function exportCSV() {
       if (!allLeads.length) {
         alert('No leads to export.');
@@ -405,13 +426,13 @@
         var l = allLeads[i];
         rows.push([
           l.id || '',
-          l.created_at || '',
-          '"' + (l.name || '').replace(/"/g, '""') + '"',
-          '"' + (l.company || '').replace(/"/g, '""') + '"',
-          '"' + (l.phone || '').replace(/"/g, '""') + '"',
-          '"' + (l.email || '').replace(/"/g, '""') + '"',
-          '"' + (l.inquiry_type || '').replace(/"/g, '""') + '"',
-          '"' + (l.comment || '').replace(/"/g, '""') + '"'
+          escapeCsvCell(l.created_at),
+          escapeCsvCell(l.name),
+          escapeCsvCell(l.company),
+          escapeCsvCell(l.phone),
+          escapeCsvCell(l.email),
+          escapeCsvCell(l.inquiry_type),
+          escapeCsvCell(l.comment)
         ]);
       }
 
