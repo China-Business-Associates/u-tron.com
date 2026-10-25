@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "u-tron",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-19",
+  "assets": {
+    "directory": "./public"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "u-tron",
+      "database_id": "b39c1bd2-934f-412f-a839-6069df3787f1"
+    }
+  ]
+}
