@@ -6,6 +6,8 @@
 document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
+  const isZh = document.documentElement.lang.startsWith('zh') || window.location.pathname.includes('zh');
+
   // 1. Sticky Navigation & Scroll Spy
   const navbar = document.getElementById('navbar');
   const navLinks = document.querySelectorAll('.nav-links a, .mobile-drawer a');
@@ -71,31 +73,212 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // 3. Product Category Filtering
+  // 3. Product Search & Category Filtering
   const tabBtns = document.querySelectorAll('.tab-btn');
-  const productCards = document.querySelectorAll('.product-card');
+  const productCards = Array.from(document.querySelectorAll('.product-card'));
+  const searchInput = document.getElementById('productSearchInput');
+  const clearSearchBtn = document.getElementById('clearProductSearch');
+  const searchStats = document.getElementById('productSearchStats');
+  const keywordChips = document.querySelectorAll('.keyword-chip');
+  const noProductsFound = document.getElementById('noProductsFound');
+  const noProductsDesc = document.getElementById('noProductsDesc');
+  const btnResetSearch = document.getElementById('btnResetSearch');
 
+  let activeCategory = 'all';
+  let activeSearchQuery = '';
+
+  // Index product cards for rapid keyword matching
+  const cardData = productCards.map(function (card) {
+    const title = card.querySelector('h3') ? card.querySelector('h3').textContent : '';
+    const partNo = card.querySelector('.product-part-no') ? card.querySelector('.product-part-no').textContent : '';
+    const badge = card.querySelector('.product-category-badge') ? card.querySelector('.product-category-badge').textContent : '';
+    const desc = card.querySelector('.product-card-desc') ? card.querySelector('.product-card-desc').textContent : '';
+    const specs = card.querySelector('.product-specs-table') ? card.querySelector('.product-specs-table').textContent : '';
+    const category = card.getAttribute('data-category') || '';
+    const datasheetBtn = card.querySelector('.btn-datasheet');
+    let extra = '';
+    if (datasheetBtn) {
+      extra = [
+        datasheetBtn.getAttribute('data-title'),
+        datasheetBtn.getAttribute('data-part'),
+        datasheetBtn.getAttribute('data-power'),
+        datasheetBtn.getAttribute('data-lumens'),
+        datasheetBtn.getAttribute('data-cct'),
+        datasheetBtn.getAttribute('data-certs'),
+        datasheetBtn.getAttribute('data-desc')
+      ].filter(Boolean).join(' ');
+    }
+    const searchText = [title, partNo, badge, desc, specs, category, extra].join(' ').toLowerCase();
+
+    return {
+      element: card,
+      category: category,
+      searchText: searchText
+    };
+  });
+
+  function updateProductFilter() {
+    const query = activeSearchQuery.trim().toLowerCase();
+    const queryTokens = query.length > 0 ? query.split(/\s+/) : [];
+
+    let visibleCount = 0;
+    let otherCatMatches = 0;
+
+    cardData.forEach(function (item) {
+      const matchesCat = (activeCategory === 'all' || item.category === activeCategory);
+      const matchesQuery = queryTokens.length === 0 || queryTokens.every(function (token) {
+        return item.searchText.indexOf(token) !== -1;
+      });
+
+      if (matchesQuery && !matchesCat) {
+        otherCatMatches++;
+      }
+
+      if (matchesCat && matchesQuery) {
+        item.element.style.display = 'flex';
+        item.element.style.opacity = '1';
+        visibleCount++;
+      } else {
+        item.element.style.display = 'none';
+      }
+    });
+
+    if (clearSearchBtn) {
+      clearSearchBtn.style.display = query.length > 0 ? 'inline-flex' : 'none';
+    }
+
+    if (searchStats) {
+      if (queryTokens.length === 0 && activeCategory === 'all') {
+        searchStats.textContent = isZh ? `共 ${cardData.length} 款产品` : `${cardData.length} products`;
+      } else {
+        searchStats.textContent = isZh
+          ? `显示 ${visibleCount} / ${cardData.length} 款产品`
+          : `Showing ${visibleCount} of ${cardData.length} products`;
+      }
+    }
+
+    // Update keyword chip active state
+    keywordChips.forEach(function (chip) {
+      const kw = (chip.getAttribute('data-keyword') || '').toLowerCase();
+      if (query.length > 0 && (query === kw || query.indexOf(kw) !== -1 || kw.indexOf(query) !== -1)) {
+        chip.classList.add('active');
+      } else {
+        chip.classList.remove('active');
+      }
+    });
+
+    // Empty state handling
+    if (noProductsFound) {
+      if (visibleCount === 0) {
+        noProductsFound.style.display = 'block';
+        if (noProductsDesc) {
+          const safeQuery = query.replace(/[<>&"]/g, '');
+          if (otherCatMatches > 0 && activeCategory !== 'all') {
+            noProductsDesc.innerHTML = isZh
+              ? `当前分类下未找到 “<span class="searched-term">${safeQuery}</span>” 相关产品，但在其他分类中找到 ${otherCatMatches} 款匹配产品。`
+              : `No products matched "<span class="searched-term">${safeQuery}</span>" in this category. Found ${otherCatMatches} matching product(s) in other categories.`;
+          } else {
+            noProductsDesc.innerHTML = isZh
+              ? `未找到与 “<span class="searched-term">${safeQuery}</span>” 相关的产品。请尝试其他关键词或重置筛选。`
+              : `No products matched "<span class="searched-term">${safeQuery}</span>". Try another search keyword or reset filters.`;
+          }
+        }
+      } else {
+        noProductsFound.style.display = 'none';
+      }
+    }
+  }
+
+  // Event: Category Tabs
   tabBtns.forEach(function (btn) {
     btn.addEventListener('click', function () {
       tabBtns.forEach(function (b) { b.classList.remove('active'); });
       this.classList.add('active');
-
-      const targetCat = this.getAttribute('data-category');
-
-      productCards.forEach(function (card) {
-        const cardCat = card.getAttribute('data-category');
-        if (targetCat === 'all' || cardCat === targetCat) {
-          card.style.display = 'flex';
-          card.style.opacity = '0';
-          setTimeout(function () {
-            card.style.opacity = '1';
-          }, 40);
-        } else {
-          card.style.display = 'none';
-        }
-      });
+      activeCategory = this.getAttribute('data-category') || 'all';
+      updateProductFilter();
     });
   });
+
+  // Event: Search Input
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      activeSearchQuery = this.value;
+      updateProductFilter();
+    });
+
+    searchInput.addEventListener('search', function () {
+      activeSearchQuery = this.value;
+      updateProductFilter();
+    });
+
+    searchInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        this.value = '';
+        activeSearchQuery = '';
+        updateProductFilter();
+      }
+    });
+  }
+
+  // Event: Clear Search Button
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', function () {
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      activeSearchQuery = '';
+      updateProductFilter();
+    });
+  }
+
+  // Event: Keyword Chips
+  keywordChips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      const kw = this.getAttribute('data-keyword') || '';
+      if (activeSearchQuery.trim().toLowerCase() === kw.toLowerCase()) {
+        activeSearchQuery = '';
+        if (searchInput) searchInput.value = '';
+      } else {
+        activeSearchQuery = kw;
+        if (searchInput) searchInput.value = kw;
+
+        // Auto-switch to 'all' if active tab has no match for this keyword
+        const hasMatchInCurrent = cardData.some(function (item) {
+          return (activeCategory === 'all' || item.category === activeCategory) &&
+                 item.searchText.indexOf(kw.toLowerCase()) !== -1;
+        });
+        if (!hasMatchInCurrent) {
+          activeCategory = 'all';
+          tabBtns.forEach(function (b) {
+            if (b.getAttribute('data-category') === 'all') {
+              b.classList.add('active');
+            } else {
+              b.classList.remove('active');
+            }
+          });
+        }
+      }
+      updateProductFilter();
+    });
+  });
+
+  // Event: Reset Filters Button in Empty State
+  if (btnResetSearch) {
+    btnResetSearch.addEventListener('click', function () {
+      activeSearchQuery = '';
+      if (searchInput) searchInput.value = '';
+      activeCategory = 'all';
+      tabBtns.forEach(function (b) {
+        if (b.getAttribute('data-category') === 'all') {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+      updateProductFilter();
+    });
+  }
 
   // 4. Modal Windows (Datasheets, Corporate Letter, Contact)
   const modalBackdrop = document.getElementById('modalBackdrop');
@@ -137,9 +320,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-    // Attach Datasheet triggers
-  const isZh = document.documentElement.lang.startsWith('zh');
-
+  // Attach Datasheet triggers
   document.querySelectorAll('.btn-datasheet').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       e.preventDefault();

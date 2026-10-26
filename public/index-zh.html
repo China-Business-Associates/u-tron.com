@@ -593,6 +593,42 @@
         </div>
       </div>
 
+      <!-- 产品搜索与关键词过滤栏 -->
+      <div class="product-search-filter-wrapper">
+        <div class="product-search-box">
+          <span class="search-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </span>
+          <input
+            type="search"
+            id="productSearchInput"
+            class="product-search-input"
+            placeholder="按产品型号、名称、应用领域或参数搜索（如：路灯、Cree、太阳能、IP65）..."
+            aria-label="搜索产品"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button type="button" id="clearProductSearch" class="product-search-clear" aria-label="清除搜索" title="清除搜索" style="display: none;">&times;</button>
+          <span class="product-search-stats" id="productSearchStats">共 17 款产品</span>
+        </div>
+
+        <!-- 匹配关键词标签 -->
+        <div class="product-keywords-row">
+          <span class="keywords-label">快捷关键词：</span>
+          <div class="keyword-chips" id="keywordChips">
+            <button type="button" class="keyword-chip" data-keyword="路灯">市政路灯</button>
+            <button type="button" class="keyword-chip" data-keyword="太阳能">太阳能</button>
+            <button type="button" class="keyword-chip" data-keyword="隧道">隧道照明</button>
+            <button type="button" class="keyword-chip" data-keyword="工矿">工业工矿</button>
+            <button type="button" class="keyword-chip" data-keyword="植物">植物照明</button>
+            <button type="button" class="keyword-chip" data-keyword="交通">智能交通</button>
+            <button type="button" class="keyword-chip" data-keyword="Cree">Cree</button>
+            <button type="button" class="keyword-chip" data-keyword="IP65">IP65</button>
+            <button type="button" class="keyword-chip" data-keyword="6800">6800 系列</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Product Cards Grid -->
       <div class="products-grid">
 
@@ -1227,6 +1263,16 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- 搜索无结果提示 -->
+      <div id="noProductsFound" class="no-products-found" style="display: none;">
+        <div class="no-products-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+        </div>
+        <h4 class="no-products-title">未找到匹配的产品</h4>
+        <p class="no-products-desc" id="noProductsDesc">未找到符合条件的产品。请尝试其他关键词或重置筛选条件。</p>
+        <button type="button" class="btn-reset-search" id="btnResetSearch">显示全系产品</button>
       </div>
     </div>
   </section>
